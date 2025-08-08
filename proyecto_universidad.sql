@@ -281,3 +281,99 @@ CREATE TABLE IMPARTICION_PREMIO (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
+
+
+
+
+-- ===================================================================
+--                           [[[TRIGGERS]]]
+-- ===================================================================
+
+
+-- ===========================================
+-- Validación de precio de matrícula > 0
+-- ===========================================
+
+DELIMITER $$
+
+CREATE TRIGGER tr_precio_matricula_check
+BEFORE INSERT ON MATRICULA
+FOR EACH ROW
+BEGIN
+    IF NEW.precio <= 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'El precio de la matrícula debe ser mayor que 0'
+    END IF;
+END$$
+
+DELIMITER ;
+
+
+
+-- ===============================================================
+-- Un máximo de 4 convocatorias por asignatura
+-- ===============================================================
+
+-- Este trigger debería activarse ANTES de insertar una nueva matrícula.
+-- Se consulta cuántas convocatorias tiene ya ese alumno
+-- para la misma asignatura, y cancela la inserción si hay 4 o más.
+
+-- Evento: BEFORE INSERT ON MATRICULA
+
+-- Lógica:
+--   SELECT COUNT(*) FROM MATRICULA
+--   WHERE dni_alumno = NEW.dni_alumno
+--     AND id_asignatura = NEW.id_asignatura;
+
+-- Si el resultado ≥ 4  lanzar error (con SIGNAL SQLSTATE)
+
+
+
+
+
+
+-- ===============================================================
+-- No permitir representantes sin representados
+-- ===============================================================
+
+-- Este trigger debería ejecutarse DESPUÉS de un DELETE en la tabla REPRESENTA para verificar si el alumno que era representante sigue teniendo representados.
+
+-- Evento: AFTER DELETE ON REPRESENTA
+
+-- Lógica esperada:
+--   SELECT COUNT(*) FROM REPRESENTA
+--   WHERE dni_representante = OLD.dni_representante;
+
+-- Si el resultado = 0  lanzar error (no se puede dejar a un representante sin ningún representado)
+
+
+
+
+
+
+-- =====================================================================
+-- Validar curso de orientación antes de auditar
+-- =====================================================================
+
+-- Este trigger debería activarse ANTES de insertar en AUDITORIA_DOCENTE
+
+-- Evento: BEFORE INSERT ON AUDITORIA_DOCENTE
+
+-- Lógica esperada:
+--   1. Obtener el departamento al que pertenece la asignatura 
+--   2. Verificar que el curso de orientación realizado por el auditor
+--      pertenece a ese mismo departamento.
+
+-- Consulta que sería necesaria:
+--   SELECT d.id_departamento
+--   FROM ASIGNATURA a
+--   JOIN DEPARTAMENTO_ASIGNATURA da ON a.id_asignatura = da.id_asignatura
+--   JOIN DEPARTAMENTO d ON da.id_departamento = d.id_departamento
+--   WHERE a.id_asignatura = NEW.id_asignatura;
+
+-- Comparar ese id_departamento con el departamento del curso que hizo el auditor.
+
+-- Si NO coinciden lanzar SIGNAL con error
+
+
+

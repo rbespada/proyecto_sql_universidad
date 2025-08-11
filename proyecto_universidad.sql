@@ -314,7 +314,7 @@ DELIMITER ;
 -- Un máximo de 4 convocatorias por asignatura
 -- ===============================================================
 
--- Este trigger debería activarse ANTES de insertar una nueva matrícula.
+-- Este trigger debería activarse antes de insertar una nueva matrícula.
 -- Se consulta cuántas convocatorias tiene ya ese alumno
 -- para la misma asignatura, y cancela la inserción si hay 4 o más.
 
@@ -336,7 +336,7 @@ DELIMITER ;
 -- No permitir representantes sin representados
 -- ===============================================================
 
--- Este trigger debería ejecutarse DESPUÉS de un DELETE en la tabla REPRESENTA para verificar si el alumno que era representante sigue teniendo representados.
+-- Este trigger debería ejecutarse después de un DELETE en la tabla REPRESENTA para verificar si el alumno que era representante sigue teniendo representados.
 
 -- Evento: AFTER DELETE ON REPRESENTA
 
@@ -355,7 +355,7 @@ DELIMITER ;
 -- Validar curso de orientación antes de auditar
 -- =====================================================================
 
--- Este trigger debería activarse ANTES de insertar en AUDITORIA_DOCENTE
+-- Este trigger debería activarse antes de insertar en AUDITORIA_DOCENTE
 
 -- Evento: BEFORE INSERT ON AUDITORIA_DOCENTE
 
